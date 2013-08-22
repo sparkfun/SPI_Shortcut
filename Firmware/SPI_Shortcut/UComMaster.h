@@ -39,6 +39,10 @@
 #define SPI_OUT		3
 #define SPI_CS		2
 
+//TWI Communications Pins
+#define TWI_SCL 5
+#define TWI_SDA 4
+
 //FT245 Control Pin Definitions
 #define PWREN	(1<<0) //PB0 (Input to AVR)
 #define RD		(1<<0) //PC0 (Output from AVR)
@@ -134,3 +138,6 @@ typedef struct{
 #define MSB 22
 #define LSB 23
 #define DELAY 24
+#define SETTINGS_CORRUPT 25
+#define UNIMPLEMENTED 26
+#define TWI_ACTION_MENU 27
