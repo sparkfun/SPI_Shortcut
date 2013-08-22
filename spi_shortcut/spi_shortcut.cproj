@@ -220,6 +220,12 @@
     <Compile Include="spi_shortcut.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="twi.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="twi.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="UComMaster.h">
       <SubType>compile</SubType>
     </Compile>

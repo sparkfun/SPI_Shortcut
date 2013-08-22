@@ -81,6 +81,8 @@ const char msb[] PROGMEM = "MSB\n\r\n\r";
 const char lsb[] PROGMEM = "LSB\n\r\n\r";
 const char command_delay[] PROGMEM = "Delay 10ms\n\r";
 const char settings_corrupt[] PROGMEM = "\n\rSettings corrupted in EEPROM, resetting.\n\r";
+const char unimplemented[] PROGMEM = "\n\rFeature not yet implemented.\n\r";
+const char twi_action_menu[] PROGMEM = "\n\r";
 
 PGM_P const string_table[] PROGMEM = 
 {
@@ -109,7 +111,9 @@ PGM_P const string_table[] PROGMEM =
 	msb,
 	lsb,
 	command_delay,
-	settings_corrupt
+	settings_corrupt,
+	unimplemented,
+	twi_action_menu
 };
 
 
@@ -580,7 +584,7 @@ void save_settings(void)
 		uint8_t settings_from_eeprom2 = 0;
 		uint8_t settings_from_eeprom3 = 0;
 		uint8_t settings_from_eeprom4 = 0;
-		uint16_t settings_crc = 0;
+		uint8_t settings_crc = 0;
 		
 		// Code to figure out settings_from_eeprom1
 		/* settings_from_eeprom1 = current_dorder + (current_frequency << 1) + (current_phase << 4); All wrong.  Stupid ascii. */
