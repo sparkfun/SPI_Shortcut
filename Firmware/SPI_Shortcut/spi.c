@@ -2,6 +2,7 @@
 #include <avr/io.h>
 #include "UComMaster.h"
 #include "spi.h"
+#include <vt100.h>
 
 void spi_init()
 {
