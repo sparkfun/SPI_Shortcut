@@ -20,6 +20,12 @@ void ioinit (void)
 	DDRD &= ~(D0 | D1 | D2 | D3 | D4 | D5 | D6 | D7);
 	PORTD |= (D0 | D1 | D2 | D3 | D4 | D5 | D6 | D7);
 	
+	// Initialize VT100 mode - this probably does not belong here.
+	printf245(" \x1B\x63");
+
+	// Added to clear the terminal on boot
+	// This eliminates the ÿ usually printed out.  Might be something to track down.
+	printf245(" \x1B[2J");
 }   
 
 void delay_ms(uint16_t x)
