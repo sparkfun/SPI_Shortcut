@@ -37,33 +37,33 @@ void change_frequency(void);
 void set_dorder(void);
 void show_settings(void);
 
-char main_menu[] PROGMEM = "\n\r\n\r------SparkFun SPI Shortcut------\n\r\n\rMAIN MENU:\n\r(1) Actions\n\r(2) Settings\n\r\n\r";	
-char arrow[] PROGMEM = "->";
-char invalid[] PROGMEM = "Invalid Character\n\r";
-char send_single[] PROGMEM = "Enter characters to send, press enter to return to menu\n\r->";
-char action_menu[] PROGMEM = "\n\rACTIONS MENU:\n\r(1) Send command string\n\r(2) Send ASCII characters\n\r(3) Continuous receive\n\r(4) Return to main menu\n\r\n\r";
-char cont_receive[] PROGMEM = "Receiving, CTRL+C to stop\n\r";
-char send_command[] PROGMEM = "Enter hex string of 256 values or less. Press return when finished.\n\rRR = Receive, CH = Chip Select High, CL = Chip Select Low, DY = 10ms Delay\n\r";
-char cs_high [] PROGMEM = "CS High\n\r";
-char cs_low[] PROGMEM = "CS Low\n\r";
-char string_sent[] PROGMEM = "String sent!\n\r";
-char settings[] PROGMEM = "\n\rSETTINGS MENU:\n\r(1) Set clock polarity and phase\n\r(2) Set frequency\n\r(3) Set data order\n\r(4) Show current settings\n\r(5) Return to main menu\n\r";
-char set_polarity_1[] PROGMEM = "\n\rClock settings can be defined in the following ways:\n\r\n\rCPOL/CPHA___LEADING EDGE________TRAILING EDGE________MODE\n\r0/0         Sample (Rising)     Setup (Falling)       (1)\n\r";
-char set_polarity_2[] PROGMEM = "0/1         Setup (Rising)      Sample (Falling)      (2)\n\r1/0         Sample (Falling)    Setup (Rising)        (3)\n\r1/1         Setup (Falling)     Sample(Rising)        (4)\n\r\n\r";
-char set_polarity_3[] PROGMEM = "Change to mode:";
-char mode_changed[] PROGMEM = "\n\rMode changed!\n\r\n\r";
-char frequency_menu_1[] PROGMEM = "\n\rFrequency Options:\n\r\n\rMODE    EFFECTIVE FREQUENCY\n\r(1)          4MHz\n\r(2)          2MHz\n\r(3)          1MHz\n\r(4)          500kHz\n\r(5)          250kHz\n\r";
-char frequency_menu_2[] PROGMEM = "(6)          125kHz\n\r(7)          62.5kHz\n\r\n\rNew frequency mode: ";
-char frequency_changed[] PROGMEM = "Frequency changed!\n\r\n\r";
-char dorder_menu[] PROGMEM = "\n\rData Order Modes:\n\r\n\r(0)   MSB transmitted first\n\r(1)   LSB transmitted first\n\rNew data mode: ";
-char dorder_changed[] PROGMEM = "Data order changed!\n\r\n\r";
-char cur_settings[] PROGMEM = "\n\rCurrent Settings:\n\r";
-char data_order[] PROGMEM = "Data Order: ";
-char msb[] PROGMEM = "MSB\n\r\n\r";
-char lsb[] PROGMEM = "LSB\n\r\n\r";
-char command_delay[] PROGMEM = "Delay 10ms\n\r";
+const char main_menu[] PROGMEM = "\n\r\n\r------SparkFun SPI Shortcut------\n\r\n\rMAIN MENU:\n\r(1) Actions\n\r(2) Settings\n\r\n\r";	
+const char arrow[] PROGMEM = "->";
+const char invalid[] PROGMEM = "Invalid Character\n\r";
+const char send_single[] PROGMEM = "Enter characters to send, press enter to return to menu\n\r->";
+const char action_menu[] PROGMEM = "\n\rACTIONS MENU:\n\r(1) Send command string\n\r(2) Send ASCII characters\n\r(3) Continuous receive\n\r(4) Return to main menu\n\r\n\r";
+const char cont_receive[] PROGMEM = "Receiving, CTRL+C to stop\n\r";
+const char send_command[] PROGMEM = "Enter hex string of 256 values or less. Press return when finished.\n\rRR = Receive, CH = Chip Select High, CL = Chip Select Low, DY = 10ms Delay\n\r";
+const char cs_high [] PROGMEM = "CS High\n\r";
+const char cs_low[] PROGMEM = "CS Low\n\r";
+const char string_sent[] PROGMEM = "String sent!\n\r";
+const char settings[] PROGMEM = "\n\rSETTINGS MENU:\n\r(1) Set clock polarity and phase\n\r(2) Set frequency\n\r(3) Set data order\n\r(4) Show current settings\n\r(5) Return to main menu\n\r";
+const char set_polarity_1[] PROGMEM = "\n\rClock settings can be defined in the following ways:\n\r\n\rCPOL/CPHA___LEADING EDGE________TRAILING EDGE________MODE\n\r0/0         Sample (Rising)     Setup (Falling)       (1)\n\r";
+const char set_polarity_2[] PROGMEM = "0/1         Setup (Rising)      Sample (Falling)      (2)\n\r1/0         Sample (Falling)    Setup (Rising)        (3)\n\r1/1         Setup (Falling)     Sample(Rising)        (4)\n\r\n\r";
+const char set_polarity_3[] PROGMEM = "Change to mode:";
+const char mode_changed[] PROGMEM = "\n\rMode changed!\n\r\n\r";
+const char frequency_menu_1[] PROGMEM = "\n\rFrequency Options:\n\r\n\rMODE    EFFECTIVE FREQUENCY\n\r(1)          4MHz\n\r(2)          2MHz\n\r(3)          1MHz\n\r(4)          500kHz\n\r(5)          250kHz\n\r";
+const char frequency_menu_2[] PROGMEM = "(6)          125kHz\n\r(7)          62.5kHz\n\r\n\rNew frequency mode: ";
+const char frequency_changed[] PROGMEM = "Frequency changed!\n\r\n\r";
+const char dorder_menu[] PROGMEM = "\n\rData Order Modes:\n\r\n\r(0)   MSB transmitted first\n\r(1)   LSB transmitted first\n\rNew data mode: ";
+const char dorder_changed[] PROGMEM = "Data order changed!\n\r\n\r";
+const char cur_settings[] PROGMEM = "\n\rCurrent Settings:\n\r";
+const char data_order[] PROGMEM = "Data Order: ";
+const char msb[] PROGMEM = "MSB\n\r\n\r";
+const char lsb[] PROGMEM = "LSB\n\r\n\r";
+const char command_delay[] PROGMEM = "Delay 10ms\n\r";
 
-PGM_P string_table[] PROGMEM = 
+PGM_P const string_table[] PROGMEM = 
 {
 	main_menu,
 	arrow,
@@ -93,7 +93,7 @@ PGM_P string_table[] PROGMEM =
 };
 
 
-char buffer[150];
+char buffer[200];
 
 int main(void)
 {
