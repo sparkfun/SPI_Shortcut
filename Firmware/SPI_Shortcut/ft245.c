@@ -95,7 +95,7 @@ void printf245(const char *text, ...){
 				else if(text[index+1]=='c'){
 					PORTD = character;				
 					clearWR();
-					delay_ms(1);
+//					delay_ms(1);  // I hope there is no subtle timing bug here that I'm unaware of....
 					setWR();
 					index+=1;
 				}				
@@ -103,7 +103,7 @@ void printf245(const char *text, ...){
 			else{
 				PORTD = character;				
 				clearWR();
-				delay_ms(1);
+//				delay_ms(1);
 				setWR();
 			}
 			character=text[++index];
