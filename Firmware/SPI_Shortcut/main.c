@@ -4,6 +4,8 @@
 #include "spi.h"
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
+#include <avr/eeprom.h>
+#include <util/crc16.h>
 
 volatile uint8_t current_phase = '1';
 volatile uint8_t current_dorder = '0';
@@ -16,6 +18,12 @@ volatile uint16_t fcnt=0;
 uint8_t sendonly = 1;
 volatile uint16_t send_string[256];
 
+//  EEMEM Everything!
+uint8_t EEMEM settings_from_eeprom1_address = 0;
+uint8_t EEMEM settings_from_eeprom2_address = 0;
+uint8_t EEMEM settings_from_eeprom3_address = 0;
+uint8_t EEMEM settings_from_eeprom4_address = 0;
+uint8_t EEMEM settings_crc_address = 0;
 
 char getc245_blocking(void);
 void send_ascii(void);
@@ -36,6 +44,8 @@ void my_printf(uint8_t string_num);
 void change_frequency(void);
 void set_dorder(void);
 void show_settings(void);
+void init_settings(void);
+void save_settings(void);
 
 const char main_menu[] PROGMEM = "\n\r\n\r------SparkFun SPI Shortcut------\n\r\n\rMAIN MENU:\n\r(1) Actions\n\r(2) Settings\n\r\n\r";	
 const char arrow[] PROGMEM = "->";
@@ -62,6 +72,7 @@ const char data_order[] PROGMEM = "Data Order: ";
 const char msb[] PROGMEM = "MSB\n\r\n\r";
 const char lsb[] PROGMEM = "LSB\n\r\n\r";
 const char command_delay[] PROGMEM = "Delay 10ms\n\r";
+const char settings_corrupt[] PROGMEM = "\n\rSettings corrupted in EEPROM, resetting.\n\r";
 
 PGM_P const string_table[] PROGMEM = 
 {
@@ -89,7 +100,8 @@ PGM_P const string_table[] PROGMEM =
 	data_order,
 	msb,
 	lsb,
-	command_delay
+	command_delay,
+	settings_corrupt
 };
 
 
@@ -111,7 +123,8 @@ int main(void)
 	}
 	PORTC |= ((1<<SDA) | (1<<SCL));
 	ioinit();
-	spi_init(); 
+	spi_init();
+	init_settings();
 	menu();
 	
 
@@ -306,6 +319,116 @@ void send_command_string(void)
 			-Change parity
 ****************************************************************************/
 
+void init_settings(void)
+{
+	uint8_t settings_from_eeprom1 = 0;
+	uint8_t settings_from_eeprom2 = 0;
+	uint8_t settings_from_eeprom3 = 0;
+	uint8_t settings_from_eeprom4 = 0;
+	uint8_t settings_crc = 0;
+	uint8_t calculated_crc = 0;
+	
+	settings_from_eeprom1 = eeprom_read_byte(&settings_from_eeprom1_address);  // Read settings from eeprom byte 0 through 3
+														   // Bits 8 through 32 are reserved, bits 5-7 contain polarity, bits 4-2 contain frequency, bit 1 contains dorder
+	settings_from_eeprom2 = eeprom_read_byte(&settings_from_eeprom2_address);
+	settings_from_eeprom3 = eeprom_read_byte(&settings_from_eeprom3_address);
+	settings_from_eeprom4 = eeprom_read_byte(&settings_from_eeprom4_address);
+	settings_crc = eeprom_read_byte(&settings_crc_address); // Read settings crc from eeprom byte 4
+	calculated_crc = _crc_ibutton_update(calculated_crc, settings_from_eeprom1);
+	calculated_crc = _crc_ibutton_update(calculated_crc, settings_from_eeprom2);
+	calculated_crc = _crc_ibutton_update(calculated_crc, settings_from_eeprom3);
+	calculated_crc = _crc_ibutton_update(calculated_crc, settings_from_eeprom4);
+	if (calculated_crc != settings_crc) {
+		my_printf(SETTINGS_CORRUPT); // Default to 500khz, MSB, Polarity Mode 1 0b 0001 1000
+		settings_from_eeprom1 = 0x18;
+		settings_from_eeprom2 = 0x0;
+		settings_from_eeprom3 = 0x0;
+		settings_from_eeprom4 = 0x0;
+		settings_crc = 0;
+		calculated_crc = _crc_ibutton_update(settings_crc, settings_from_eeprom1);
+		calculated_crc = _crc_ibutton_update(calculated_crc, settings_from_eeprom2);
+		calculated_crc = _crc_ibutton_update(calculated_crc, settings_from_eeprom3);
+		calculated_crc = _crc_ibutton_update(calculated_crc, settings_from_eeprom4);
+		eeprom_write_byte(&settings_from_eeprom1_address, settings_from_eeprom1);
+		eeprom_write_byte(&settings_from_eeprom2_address, settings_from_eeprom2);
+		eeprom_write_byte(&settings_from_eeprom3_address, settings_from_eeprom3);
+		eeprom_write_byte(&settings_from_eeprom4_address, settings_from_eeprom4);
+		eeprom_write_byte(&settings_crc_address, calculated_crc);
+	} 
+	if (settings_from_eeprom1 & 0x1) {
+		SPCR |= (1<<DORD);
+		current_dorder = '1';
+//		printf245("Setting LSB.\n\r");
+		}
+		else {
+			SPCR &= ~(1<<DORD);
+			current_dorder = '0';
+//			printf245("Setting MSB.\n\r");
+			}
+	settings_from_eeprom1 = settings_from_eeprom1 >> 1; // drop bit 1
+	
+	calculated_crc = settings_from_eeprom1 & 0x7;
+	if(calculated_crc == 1|| calculated_crc == 2){ SPCR &= ~((1<<SPR0) | (1<<SPR1)); }
+	else if(calculated_crc == 3|| calculated_crc == 4){ SPCR &= ~(1<<SPR1); SPCR |= (1<<SPR0); }
+	else if(calculated_crc == 5|| calculated_crc == 6){ SPCR &= ~(1<<SPR0); SPCR |= (1<<SPR1); }
+	else if(calculated_crc == 7){ SPCR |= ((1<<SPR0) | (1<<SPR1)); }
+	if(calculated_crc == 1 || calculated_crc == 3 || calculated_crc == 5){ SPSR |= 0x01; } // Frequency doubler
+	else{ SPSR &= ~(1<<SPI2X); }
+	current_frequency = calculated_crc + 48;
+	settings_from_eeprom1 = settings_from_eeprom1 >> 3; // drop bits 2 through 4
+	
+	calculated_crc = settings_from_eeprom1 & 0x7;
+	switch(calculated_crc)
+	{
+		case 1:
+		SPCR = (1<<SPE) | (1<<MSTR) | (1<<SPR0) | (1<<SPIE);
+		current_phase = '1';
+		break;
+		case 2:
+		SPCR = (1<<SPE) | (1<<MSTR) | (1<<SPR0) | (1<<SPIE) | (1<<CPHA);
+		current_phase = '2';
+		break;
+		case 3:
+		SPCR = (1<<SPE) | (1<<MSTR) | (1<<SPR0) | (1<<SPIE) | (1<<CPOL);
+		current_phase = '3';
+		break;
+		case 4:
+		SPCR = (1<<SPE) | (1<<MSTR) | (1<<SPR0) | (1<<SPIE) | (1<<CPHA) | (1<<CPOL);
+		current_phase = '4';
+		break;
+	}
+}
+
+void save_settings(void)
+{
+		uint8_t settings_from_eeprom1 = 0;
+		uint8_t settings_from_eeprom2 = 0;
+		uint8_t settings_from_eeprom3 = 0;
+		uint8_t settings_from_eeprom4 = 0;
+		uint8_t settings_crc = 0;
+		
+		// Code to figure out settings_from_eeprom1
+		/* settings_from_eeprom1 = current_dorder + (current_frequency << 1) + (current_phase << 4); All wrong.  Stupid ascii. */
+		if (current_dorder == '1') {settings_from_eeprom1 = 1;}
+			else {settings_from_eeprom1 = 0;}
+
+		settings_from_eeprom1 += ((current_frequency - 48) << 1);
+		settings_from_eeprom1 += ((current_phase - 48) << 4);
+		
+		// Calculates CRC, then writes out the settings + CRC
+		settings_crc = 0;
+		settings_crc = _crc_ibutton_update(settings_crc, settings_from_eeprom1);
+		settings_crc = _crc_ibutton_update(settings_crc, settings_from_eeprom2);
+		settings_crc = _crc_ibutton_update(settings_crc, settings_from_eeprom3);
+		settings_crc = _crc_ibutton_update(settings_crc, settings_from_eeprom4);
+		eeprom_write_byte(&settings_from_eeprom1_address, settings_from_eeprom1);
+		eeprom_write_byte(&settings_from_eeprom2_address, settings_from_eeprom2);
+		eeprom_write_byte(&settings_from_eeprom3_address, settings_from_eeprom3);
+		eeprom_write_byte(&settings_from_eeprom4_address, settings_from_eeprom4);
+		eeprom_write_byte(&settings_crc_address, settings_crc);
+		settings_menu();
+}
+
 void settings_menu(void)
 {
 	char c = 0;
@@ -332,6 +455,9 @@ void settings_menu(void)
 			break;
 		case '5':
 			menu();
+			break;
+		case '6':
+			save_settings();
 			break;
 		default:
 		{

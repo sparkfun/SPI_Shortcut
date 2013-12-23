@@ -134,3 +134,4 @@ typedef struct{
 #define MSB 22
 #define LSB 23
 #define DELAY 24
+#define SETTINGS_CORRUPT 25
